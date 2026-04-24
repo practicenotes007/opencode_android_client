@@ -1,5 +1,9 @@
 # OpenCode Android 客户端工作日志
 
+## 2026-04-23
+
+- Model 列表更新：删除 Opus 4.6 和 Sonnet 4.6，添加 DeepSeek (`deepseek/deepseek-v4-pro`)。`ModelPresets.list`、`ModelOption.shortName`、对应测试同步更新。对齐 iOS 客户端改动。
+
 ## 2026-04-16
 
 - Session list 增加副标题：在标题下方显示相对时间（如 "5 min ago"）和 session 状态标签（Running/Retrying/Idle），对齐 iOS 客户端行为。使用 `DateUtils.getRelativeTimeSpanString` 做本地化相对时间格式化。数据复用已有的 `session.time.updated` 和 `sessionStatuses`，无需额外 API 请求。
