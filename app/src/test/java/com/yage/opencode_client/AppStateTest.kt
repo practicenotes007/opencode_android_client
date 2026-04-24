@@ -162,8 +162,8 @@ class AppStateTest {
         assertEquals("GLM-5-turbo", models[0].displayName)
         assertEquals("zai-coding-plan", models[0].providerId)
         assertEquals("glm-5-turbo", models[0].modelId)
-        assertEquals("Opus 4.6", models[1].displayName)
-        assertEquals("anthropic", models[1].providerId)
+        assertEquals("GPT-5.4", models[1].displayName)
+        assertEquals("openai", models[1].providerId)
     }
 
     @Test

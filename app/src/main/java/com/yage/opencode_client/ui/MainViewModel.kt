@@ -65,8 +65,7 @@ data class AppState(
     data class ModelOption(val displayName: String, val providerId: String, val modelId: String) {
         val shortName: String
             get() = when {
-                "Opus" in displayName -> "Opus"
-                "Sonnet" in displayName -> "Sonnet"
+                "DeepSeek" in displayName -> "DeepSeek"
                 "Haiku" in displayName -> "Haiku"
                 "Gemini" in displayName -> "Gemini"
                 "GPT" in displayName -> "GPT"
