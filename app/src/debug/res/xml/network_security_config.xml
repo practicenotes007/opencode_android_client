@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    DEBUG BUILD ONLY: Cleartext HTTP is permitted ONLY for specific development hosts.
+    This configuration is ONLY for debug builds and MUST NOT be used in release.
+
+    Allowed hosts:
+    - localhost / 127.0.0.1
+    - 10.0.2.2 (Android emulator host loopback)
+    - 192.168.0.x / 192.168.1.x (common LAN ranges for local development)
+    - *.ts.net (Tailscale MagicDNS)
+-->
+<network-security-config>
+    <!-- Default: require HTTPS for all domains not explicitly listed -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Debug-only: allow cleartext to specific development hosts -->
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Local development -->
+        <domain includeSubdomains="true">localhost</domain>
+        <domain>127.0.0.1</domain>
+        <domain>10.0.2.2</domain>
+
+        <!-- LAN development servers - Common ranges -->
+        <!-- 192.168.0.x -->
+        <domain>192.168.0.1</domain>
+        <domain>192.168.0.2</domain>
+        <domain>192.168.0.104</domain>
+        <domain>192.168.0.105</domain>
+        <domain>192.168.0.106</domain>
+
+        <!-- 192.168.1.x -->
+        <domain>192.168.1.1</domain>
+        <domain>192.168.1.2</domain>
+        <domain>192.168.1.104</domain>
+        <domain>192.168.1.105</domain>
+
+        <!-- Tailscale MagicDNS -->
+        <domain includeSubdomains="true">ts.net</domain>
+    </domain-config>
+</network-security-config>

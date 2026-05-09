@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    RELEASE BUILD: HTTPS ONLY. Cleartext HTTP is STRICTLY PROHIBITED.
+
+    This configuration is used for production releases and enforces:
+    - All traffic must use HTTPS
+    - No cleartext exceptions
+    - System certificate authority trust only
+
+    DO NOT MODIFY THIS FILE TO ALLOW CLEARTEXT IN PRODUCTION.
+-->
+<network-security-config>
+    <!-- Base configuration: HTTPS required for all domains -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Only trust system root CAs -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
