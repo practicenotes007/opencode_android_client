@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -67,7 +68,8 @@ internal data class ChatTopBarState(
     val contextUsage: AppState.ContextUsage?,
     val showSettingsButton: Boolean = true,
     val showNewSessionInTopBar: Boolean = true,
-    val showSessionListInTopBar: Boolean = true
+    val showSessionListInTopBar: Boolean = true,
+    val isDiaryMode: Boolean = false
 )
 
 internal data class ChatTopBarActions(
@@ -80,7 +82,8 @@ internal data class ChatTopBarActions(
     val onSelectAgent: (String) -> Unit,
     val onSelectModel: (Int) -> Unit,
     val onNavigateToSettings: () -> Unit = {},
-    val onRenameSession: (String) -> Unit = {}
+    val onRenameSession: (String) -> Unit = {},
+    val onToggleDiary: () -> Unit = {}
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -293,6 +296,21 @@ internal fun ChatTopBar(
                                 )
                             }
                         }
+                    }
+
+                    IconButton(
+                        onClick = actions.onToggleDiary,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Bookmark,
+                            contentDescription = "Diary mode",
+                            tint = if (state.isDiaryMode)
+                                MaterialTheme.colorScheme.primary
+                            else
+                                MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
 
                     state.contextUsage?.let { usage ->

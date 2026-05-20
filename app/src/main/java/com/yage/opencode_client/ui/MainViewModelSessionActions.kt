@@ -8,6 +8,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 internal fun launchLoadSessions(
     scope: CoroutineScope,
@@ -400,4 +403,17 @@ internal fun launchSendMessage(
                 state.update { it.copy(error = errorMessageOrFallback(error, "Failed to send message")) }
             }
     }
+}
+
+internal fun buildDiaryMessage(userText: String, diaryDir: String): String {
+    val today = LocalDate.now().toString()
+    val now = LocalDateTime.now()
+    val timestamp = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+    val cleanDir = diaryDir.trimEnd('/')
+    return "[$timestamp]\n$userText\n\n" +
+            "Please save this diary entry to the file `$cleanDir/$today.md`. " +
+            "If the file already exists, append this entry at the end. " +
+            "If the file does not exist, create it. " +
+            "Each entry in the file should be separated by a blank line and start with a `[YYYY-MM-DD HH:mm]` timestamp header. " +
+            "Do not overwrite any existing entries."
 }

@@ -67,7 +67,8 @@ fun ChatScreen(
                 contextUsage = cachedContextUsage,
                 showSettingsButton = showSettingsButton,
                 showNewSessionInTopBar = showNewSessionInTopBar,
-                showSessionListInTopBar = showSessionListInTopBar
+                showSessionListInTopBar = showSessionListInTopBar,
+                isDiaryMode = state.isDiaryMode
             ),
             actions = ChatTopBarActions(
                 onSelectSession = viewModel::selectSession,
@@ -83,7 +84,8 @@ fun ChatScreen(
                     state.currentSessionId?.let { sessionId ->
                         viewModel.updateSessionTitle(sessionId, title)
                     }
-                }
+                },
+                onToggleDiary = viewModel::toggleDiaryMode
             )
         )
 
@@ -133,6 +135,7 @@ fun ChatScreen(
                 isRecording = state.isRecording,
                 isTranscribing = state.isTranscribing,
                 isSpeechConfigured = state.aiBuilderConnectionOK && aiBuilderToken.isNotEmpty(),
+                isDiaryMode = state.isDiaryMode,
                 onTextChange = viewModel::setInputText,
                 onSend = { viewModel.sendMessage() },
                 onAbort = { viewModel.abortSession() },

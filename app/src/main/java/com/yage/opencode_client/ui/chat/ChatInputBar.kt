@@ -47,6 +47,7 @@ internal fun ChatInputBar(
     isRecording: Boolean,
     isTranscribing: Boolean,
     isSpeechConfigured: Boolean,
+    isDiaryMode: Boolean = false,
     onTextChange: (String) -> Unit,
     onSend: () -> Unit,
     onAbort: () -> Unit,
@@ -70,7 +71,7 @@ internal fun ChatInputBar(
                 value = text,
                 onValueChange = onTextChange,
                 modifier = Modifier.weight(1f).onGloballyPositioned { textFieldHeightPx = it.size.height },
-                placeholder = { Text("Type a message...") },
+                placeholder = { Text(if (isDiaryMode) "Write today's diary..." else "Type a message...") },
                 maxLines = 4,
                 enabled = true
             )

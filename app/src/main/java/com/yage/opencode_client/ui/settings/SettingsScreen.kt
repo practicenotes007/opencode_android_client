@@ -42,6 +42,7 @@ fun SettingsScreen(
     var aiBuilderCustomPrompt by remember { mutableStateOf(savedAIBuilder.customPrompt) }
     var aiBuilderTerminology by remember { mutableStateOf(savedAIBuilder.terminology) }
     var showAIBuilderToken by remember { mutableStateOf(false) }
+    var diaryDirectory by remember(viewModel) { mutableStateOf(state.diaryDirectory) }
 
     LaunchedEffect(state.isConnecting) {
         if (!state.isConnecting && isTesting) {
@@ -157,6 +158,16 @@ fun SettingsScreen(
                             terminology = aiBuilderTerminology
                         )
                     )
+                }
+            )
+
+            SettingsSectionDivider()
+
+            DiarySection(
+                diaryDirectory = diaryDirectory,
+                onDiaryDirectoryChange = { diaryDirectory = it },
+                onSave = {
+                    viewModel.setDiaryDirectory(diaryDirectory.trim())
                 }
             )
 

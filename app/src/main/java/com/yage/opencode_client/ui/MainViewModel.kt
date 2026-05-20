@@ -60,7 +60,9 @@ data class AppState(
     val speechError: String? = null,
     val aiBuilderConnectionOK: Boolean = false,
     val aiBuilderConnectionError: String? = null,
-    val isTestingAIBuilderConnection: Boolean = false
+    val isTestingAIBuilderConnection: Boolean = false,
+    val isDiaryMode: Boolean = false,
+    val diaryDirectory: String = "diary"
 ) {
     data class ModelOption(val displayName: String, val providerId: String, val modelId: String) {
         val shortName: String
@@ -140,7 +142,9 @@ data class AppState(
         val contextUsage: ContextUsage? = null,
         val agents: List<AgentInfo> = emptyList(),
         val providers: ProvidersResponse? = null,
-        val isRecording: Boolean = false
+        val isRecording: Boolean = false,
+        val isDiaryMode: Boolean = false,
+        val diaryDirectory: String = "diary"
     )
 
     val connectionState: ConnectionState
@@ -200,7 +204,9 @@ data class AppState(
             contextUsage = contextUsage,
             agents = agents,
             providers = providers,
-            isRecording = isRecording
+            isRecording = isRecording,
+            isDiaryMode = isDiaryMode,
+            diaryDirectory = diaryDirectory
         )
 
     val currentSession: Session?
@@ -367,6 +373,15 @@ class MainViewModel @Inject constructor(
         _state.update { it.copy(speechError = message) }
     }
 
+    fun toggleDiaryMode() {
+        _state.update { it.copy(isDiaryMode = !it.isDiaryMode) }
+    }
+
+    fun setDiaryDirectory(path: String) {
+        settingsManager.diaryDirectory = path
+        _state.update { it.copy(diaryDirectory = path) }
+    }
+
     fun testConnection() {
         val now = System.currentTimeMillis()
         if (now - lastHealthCheckTime < 30_000) return
@@ -465,11 +480,14 @@ class MainViewModel @Inject constructor(
 
     fun sendMessage() {
         val sessionId = _state.value.currentSessionId ?: return
-        val text = _state.value.inputText.trim()
-        if (text.isEmpty()) return
+        val rawText = _state.value.inputText.trim()
+        if (rawText.isEmpty()) return
 
         val agent = _state.value.selectedAgentName
         val model = buildSelectedModel(_state.value)
+        val isDiary = _state.value.isDiaryMode
+        val diaryDir = _state.value.diaryDirectory
+        val text = if (isDiary) buildDiaryMessage(rawText, diaryDir) else rawText
 
         launchSendMessage(
             scope = viewModelScope,

@@ -78,6 +78,10 @@ class SettingsManager @Inject constructor(
         get() = encryptedPrefs.getLong(KEY_AI_BUILDER_LAST_OK_TESTED, 0L)
         set(value) = encryptedPrefs.edit().putLong(KEY_AI_BUILDER_LAST_OK_TESTED, value).apply()
 
+    var diaryDirectory: String
+        get() = encryptedPrefs.getString(KEY_DIARY_DIRECTORY, DEFAULT_DIARY_DIRECTORY) ?: DEFAULT_DIARY_DIRECTORY
+        set(value) = encryptedPrefs.edit().putString(KEY_DIARY_DIRECTORY, value).apply()
+
     fun getDraftText(sessionId: String): String {
         val json = encryptedPrefs.getString(KEY_SESSION_DRAFTS, null) ?: return ""
         return try {
@@ -163,6 +167,8 @@ class SettingsManager @Inject constructor(
         private const val KEY_SESSION_DRAFTS = "session_drafts"
         private const val KEY_SESSION_MODELS = "session_models"
         private const val KEY_SESSION_AGENTS = "session_agents"
+        private const val KEY_DIARY_DIRECTORY = "diary_directory"
+        const val DEFAULT_DIARY_DIRECTORY = "diary"
     }
 }
 

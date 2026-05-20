@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
@@ -317,6 +318,43 @@ internal fun AboutSection() {
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.outline
     )
+}
+
+@Composable
+internal fun DiarySection(
+    diaryDirectory: String,
+    onDiaryDirectoryChange: (String) -> Unit,
+    onSave: () -> Unit
+) {
+    SectionHeader(title = "Diary")
+
+    OutlinedTextField(
+        value = diaryDirectory,
+        onValueChange = onDiaryDirectoryChange,
+        label = { Text("Diary Save Directory") },
+        placeholder = { Text("diary") },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        leadingIcon = { Icon(Icons.Default.Bookmark, contentDescription = null) }
+    )
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    Text(
+        "Diary entries are saved as daily files in this directory relative to the workspace. " +
+                "Each day creates a new file (e.g., 2026-05-20.md) and entries are appended with timestamps.",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.outline
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    OutlinedButton(
+        onClick = onSave,
+        enabled = diaryDirectory.isNotBlank()
+    ) {
+        Text("Save")
+    }
 }
 
 @Composable
