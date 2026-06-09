@@ -160,11 +160,11 @@ class AppStateTest {
         assertEquals(ModelPresets.list.size, models.size)
         assertEquals(ModelPresets.list, models)
         assertEquals("GLM-5.1", models[0].displayName)
-        assertEquals("zai-coding-plan", models[0].providerId)
+        assertEquals("volcengine-plan", models[0].providerId)
         assertEquals("glm-5.1", models[0].modelId)
-        assertEquals("GPT-5.5", models[1].displayName)
-        assertEquals("openai", models[1].providerId)
-        assertEquals("gpt-5.5", models[1].modelId)
+        assertEquals("DeepSeek V4 Flash", models[1].displayName)
+        assertEquals("volcengine-plan", models[1].providerId)
+        assertEquals("deepseek-v4-flash", models[1].modelId)
     }
 
     @Test
