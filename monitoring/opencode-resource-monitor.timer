@@ -1,0 +1,10 @@
+[Unit]
+Description=OpenCode dual-serve resource monitor (every 15 min)
+Requires=opencode-resource-monitor.service
+
+[Timer]
+OnCalendar=*:0,15,30,45
+Persistent=true
+
+[Install]
+WantedBy=timers.target

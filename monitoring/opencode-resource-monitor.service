@@ -1,0 +1,8 @@
+[Unit]
+Description=OpenCode dual-serve resource monitor
+After=network.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+ExecStart=/bin/bash /home/ubuntu/2026.opencode/adhoc_jobs/opencode_android_client/monitoring/collect.sh

@@ -1,0 +1,4 @@
+timestamp,epoch,devinoc_rss_mb,devinoc_vsz_mb,devinoc_cpu_ticks,devinoc_uptime_sec,wxp_rss_mb,wxp_vsz_mb,wxp_cpu_ticks,wxp_uptime_sec,mem_total_mb,mem_used_mb,mem_avail_mb,swap_total_mb,swap_used_mb,load_1m,load_5m,load_15m
+2026-06-09T09:59:51Z,1780999191,338,72711,1221,663,338,72698,17349,9597,3916,2100,1816,4096,431,0.74,0.57,0.55
+2026-06-09T10:00:04Z,1780999204,338,72711,1234,676,338,72698,17374,9610,3916,2129,1787,4096,431,1.92,0.82,0.63
+2026-06-09T10:00:10Z,1780999210,338,72711,1238,682,338,72698,17384,9616,3916,2141,1775,4096,431,1.84,0.82,0.63
