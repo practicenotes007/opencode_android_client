@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
@@ -37,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.yage.opencode_client.ui.AIBuilderSettings
 import com.yage.opencode_client.ui.AppState
 import com.yage.opencode_client.util.ThemeMode
 
@@ -187,117 +185,6 @@ internal fun AppearanceSection(
 }
 
 @Composable
-internal fun SpeechRecognitionSection(
-    state: AppState,
-    aiBuilderBaseURL: String,
-    aiBuilderToken: String,
-    aiBuilderCustomPrompt: String,
-    aiBuilderTerminology: String,
-    showAIBuilderToken: Boolean,
-    onBaseUrlChange: (String) -> Unit,
-    onTokenChange: (String) -> Unit,
-    onPromptChange: (String) -> Unit,
-    onTerminologyChange: (String) -> Unit,
-    onToggleTokenVisibility: () -> Unit,
-    onTestConnection: () -> Unit,
-    onSave: () -> Unit
-) {
-    SectionHeader(title = "Speech Recognition")
-
-    OutlinedTextField(
-        value = aiBuilderBaseURL,
-        onValueChange = onBaseUrlChange,
-        label = { Text("AI Builder Base URL") },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-        leadingIcon = { Icon(Icons.Default.Cloud, contentDescription = null) }
-    )
-
-    Spacer(modifier = Modifier.height(12.dp))
-
-    OutlinedTextField(
-        value = aiBuilderToken,
-        onValueChange = onTokenChange,
-        label = { Text("AI Builder Token") },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-        visualTransformation = if (showAIBuilderToken) VisualTransformation.None else PasswordVisualTransformation(),
-        trailingIcon = {
-            IconButton(onClick = onToggleTokenVisibility) {
-                Icon(
-                    if (showAIBuilderToken) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                    contentDescription = if (showAIBuilderToken) "Hide token" else "Show token"
-                )
-            }
-        },
-        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) }
-    )
-
-    Spacer(modifier = Modifier.height(12.dp))
-
-    OutlinedTextField(
-        value = aiBuilderCustomPrompt,
-        onValueChange = onPromptChange,
-        label = { Text("Custom Prompt") },
-        modifier = Modifier.fillMaxWidth(),
-        minLines = 3,
-        maxLines = 6
-    )
-
-    Spacer(modifier = Modifier.height(12.dp))
-
-    OutlinedTextField(
-        value = aiBuilderTerminology,
-        onValueChange = onTerminologyChange,
-        label = { Text("Terminology") },
-        placeholder = { Text("comma-separated terms") },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true
-    )
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Button(
-            onClick = onTestConnection,
-            enabled = aiBuilderBaseURL.isNotBlank() && !state.isTestingAIBuilderConnection
-        ) {
-            if (state.isTestingAIBuilderConnection) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(16.dp),
-                    strokeWidth = 2.dp
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-            Text("Test Connection")
-        }
-
-        OutlinedButton(
-            onClick = onSave,
-            enabled = aiBuilderBaseURL.isNotBlank()
-        ) {
-            Text("Save")
-        }
-    }
-
-    if (state.aiBuilderConnectionOK || state.aiBuilderConnectionError != null) {
-        ResultCard(
-            result = TestResult(
-                success = state.aiBuilderConnectionOK,
-                message = if (state.aiBuilderConnectionOK) {
-                    "Connected successfully"
-                } else {
-                    state.aiBuilderConnectionError ?: "Connection failed"
-                }
-            )
-        )
-    }
-}
-
-@Composable
 internal fun AboutSection() {
     SectionHeader(title = "About")
 
@@ -318,43 +205,6 @@ internal fun AboutSection() {
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.outline
     )
-}
-
-@Composable
-internal fun DiarySection(
-    diaryDirectory: String,
-    onDiaryDirectoryChange: (String) -> Unit,
-    onSave: () -> Unit
-) {
-    SectionHeader(title = "Diary")
-
-    OutlinedTextField(
-        value = diaryDirectory,
-        onValueChange = onDiaryDirectoryChange,
-        label = { Text("Diary Save Directory") },
-        placeholder = { Text("diary") },
-        modifier = Modifier.fillMaxWidth(),
-        singleLine = true,
-        leadingIcon = { Icon(Icons.Default.Bookmark, contentDescription = null) }
-    )
-
-    Spacer(modifier = Modifier.height(8.dp))
-
-    Text(
-        "Diary entries are saved as daily files in this directory relative to the workspace. " +
-                "Each day creates a new file (e.g., 2026-05-20.md) and entries are appended with timestamps.",
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.outline
-    )
-
-    Spacer(modifier = Modifier.height(16.dp))
-
-    OutlinedButton(
-        onClick = onSave,
-        enabled = diaryDirectory.isNotBlank()
-    ) {
-        Text("Save")
-    }
 }
 
 @Composable
@@ -417,17 +267,3 @@ internal data class TestResult(
     val success: Boolean,
     val message: String
 )
-
-internal fun buildAIBuilderSettings(
-    baseURL: String,
-    token: String,
-    customPrompt: String,
-    terminology: String
-): AIBuilderSettings {
-    return AIBuilderSettings(
-        baseURL = baseURL,
-        token = token,
-        customPrompt = customPrompt,
-        terminology = terminology
-    )
-}

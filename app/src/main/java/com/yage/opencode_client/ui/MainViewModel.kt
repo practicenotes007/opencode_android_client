@@ -60,9 +60,7 @@ data class AppState(
     val speechError: String? = null,
     val aiBuilderConnectionOK: Boolean = false,
     val aiBuilderConnectionError: String? = null,
-    val isTestingAIBuilderConnection: Boolean = false,
-    val isDiaryMode: Boolean = false,
-    val diaryDirectory: String = "diary"
+    val isTestingAIBuilderConnection: Boolean = false
 ) {
     data class ModelOption(val displayName: String, val providerId: String, val modelId: String) {
         val shortName: String
@@ -142,9 +140,7 @@ data class AppState(
         val contextUsage: ContextUsage? = null,
         val agents: List<AgentInfo> = emptyList(),
         val providers: ProvidersResponse? = null,
-        val isRecording: Boolean = false,
-        val isDiaryMode: Boolean = false,
-        val diaryDirectory: String = "diary"
+        val isRecording: Boolean = false
     )
 
     val connectionState: ConnectionState
@@ -204,9 +200,7 @@ data class AppState(
             contextUsage = contextUsage,
             agents = agents,
             providers = providers,
-            isRecording = isRecording,
-            isDiaryMode = isDiaryMode,
-            diaryDirectory = diaryDirectory
+            isRecording = isRecording
         )
 
     val currentSession: Session?
@@ -373,15 +367,6 @@ class MainViewModel @Inject constructor(
         _state.update { it.copy(speechError = message) }
     }
 
-    fun toggleDiaryMode() {
-        _state.update { it.copy(isDiaryMode = !it.isDiaryMode) }
-    }
-
-    fun setDiaryDirectory(path: String) {
-        settingsManager.diaryDirectory = path
-        _state.update { it.copy(diaryDirectory = path) }
-    }
-
     fun testConnection() {
         val now = System.currentTimeMillis()
         if (now - lastHealthCheckTime < 30_000) return
@@ -485,16 +470,13 @@ class MainViewModel @Inject constructor(
 
         val agent = _state.value.selectedAgentName
         val model = buildSelectedModel(_state.value)
-        val isDiary = _state.value.isDiaryMode
-        val diaryDir = _state.value.diaryDirectory
-        val text = if (isDiary) buildDiaryMessage(rawText, diaryDir) else rawText
 
         launchSendMessage(
             scope = viewModelScope,
             repository = repository,
             state = _state,
             sessionId = sessionId,
-            text = text,
+            text = rawText,
             agent = agent,
             model = model,
             onRefreshMessages = ::loadMessagesWithRetry,

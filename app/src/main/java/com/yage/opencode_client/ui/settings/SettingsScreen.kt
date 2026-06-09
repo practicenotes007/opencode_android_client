@@ -29,20 +29,12 @@ fun SettingsScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val saved = remember(viewModel) { viewModel.getSavedConnectionSettings() }
-    val savedAIBuilder = remember(viewModel) { viewModel.getAIBuilderSettings() }
-
     var serverUrl by remember { mutableStateOf(saved.serverUrl) }
     var username by remember { mutableStateOf(saved.username) }
     var password by remember { mutableStateOf(saved.password) }
     var showPassword by remember { mutableStateOf(false) }
     var isTesting by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<TestResult?>(null) }
-    var aiBuilderBaseURL by remember { mutableStateOf(savedAIBuilder.baseURL) }
-    var aiBuilderToken by remember { mutableStateOf(savedAIBuilder.token) }
-    var aiBuilderCustomPrompt by remember { mutableStateOf(savedAIBuilder.customPrompt) }
-    var aiBuilderTerminology by remember { mutableStateOf(savedAIBuilder.terminology) }
-    var showAIBuilderToken by remember { mutableStateOf(false) }
-    var diaryDirectory by remember(viewModel) { mutableStateOf(state.diaryDirectory) }
 
     LaunchedEffect(state.isConnecting) {
         if (!state.isConnecting && isTesting) {
@@ -122,53 +114,6 @@ fun SettingsScreen(
             AppearanceSection(
                 themeMode = state.themeMode,
                 onThemeSelected = viewModel::setThemeMode
-            )
-
-            SettingsSectionDivider()
-
-            SpeechRecognitionSection(
-                state = state,
-                aiBuilderBaseURL = aiBuilderBaseURL,
-                aiBuilderToken = aiBuilderToken,
-                aiBuilderCustomPrompt = aiBuilderCustomPrompt,
-                aiBuilderTerminology = aiBuilderTerminology,
-                showAIBuilderToken = showAIBuilderToken,
-                onBaseUrlChange = { aiBuilderBaseURL = it },
-                onTokenChange = { aiBuilderToken = it },
-                onPromptChange = { aiBuilderCustomPrompt = it },
-                onTerminologyChange = { aiBuilderTerminology = it },
-                onToggleTokenVisibility = { showAIBuilderToken = !showAIBuilderToken },
-                onTestConnection = {
-                    viewModel.saveAIBuilderSettings(
-                        buildAIBuilderSettings(
-                            baseURL = aiBuilderBaseURL,
-                            token = aiBuilderToken,
-                            customPrompt = aiBuilderCustomPrompt,
-                            terminology = aiBuilderTerminology
-                        )
-                    )
-                    viewModel.testAIBuilderConnection()
-                },
-                onSave = {
-                    viewModel.saveAIBuilderSettings(
-                        buildAIBuilderSettings(
-                            baseURL = aiBuilderBaseURL,
-                            token = aiBuilderToken,
-                            customPrompt = aiBuilderCustomPrompt,
-                            terminology = aiBuilderTerminology
-                        )
-                    )
-                }
-            )
-
-            SettingsSectionDivider()
-
-            DiarySection(
-                diaryDirectory = diaryDirectory,
-                onDiaryDirectoryChange = { diaryDirectory = it },
-                onSave = {
-                    viewModel.setDiaryDirectory(diaryDirectory.trim())
-                }
             )
 
             SettingsSectionDivider()

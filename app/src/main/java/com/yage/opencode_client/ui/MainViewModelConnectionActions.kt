@@ -30,8 +30,7 @@ internal fun applySavedSettings(
             currentSessionId = settingsManager.currentSessionId,
             selectedModelIndex = clampedModelIndex,
             selectedAgentName = settingsManager.selectedAgentName ?: "build",
-            themeMode = settingsManager.themeMode,
-            diaryDirectory = settingsManager.diaryDirectory
+            themeMode = settingsManager.themeMode
         )
     }
 
