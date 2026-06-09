@@ -383,3 +383,19 @@ devinoce serve 在运行 3 天后累积到 **1.1GB 内存峰值**（systemd `Mem
 ### 修复记录
 
 同日 devinoc serve 因 `FOREIGN KEY constraint failed`（`workspace` 表为空，session 创建时 FK 失败）导致 `POST /session` 返回 HTTP 500。通过 `systemctl restart opencode-serve.service` 重启后恢复。根因是旧 serve 在 OOM kill 后自动重启（`Restart=on-failure`），但 DB 状态已退化。
+
+### 资源监控部署
+
+为获取客观容量数据，部署了 systemd timer 驱动的资源监控：
+
+- **采集脚本**：`monitoring/collect.sh`，每 15 分钟采集一次
+  - devinoc serve (3080) / wxp serve (3081)：RSS、VSZ、CPU ticks、uptime
+  - 系统：总内存、已用、可用、swap 使用量、load average
+  - 输出：CSV 到 `monitoring/resource_log.csv`
+- **分析脚本**：`monitoring/analyze.sh`，生成汇总报告
+  - min/avg/p95/max 统计
+  - 内存增长趋势 + 预估 OOM 时间
+  - OOM 事件计数
+- **定时器**：`opencode-resource-monitor.timer`（每 15 分钟，persistent）
+
+**使用方法**：几天后运行 `bash monitoring/analyze.sh` 即可得出最终容量评估结论。
