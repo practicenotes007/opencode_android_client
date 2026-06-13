@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -28,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -62,7 +64,13 @@ internal fun FilePreviewPane(
     fileContent: FileContent,
     repository: OpenCodeRepository,
     sessionDirectory: String? = null,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    voiceReadingState: VoiceReadingState = VoiceReadingState(),
+    onStartVoiceReading: () -> Unit = {},
+    onPauseVoiceReading: () -> Unit = {},
+    onResumeVoiceReading: () -> Unit = {},
+    onStopVoiceReading: () -> Unit = {},
+    onDismissVoiceError: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val content = fileContent.content.orEmpty()
@@ -72,6 +80,10 @@ internal fun FilePreviewPane(
     val imagePayload = remember(path, content) {
         if (previewKind == FilePreviewUtils.PreviewContentKind.IMAGE) decodeImagePayload(content) else null
     }
+
+    val isTextContent = previewKind == FilePreviewUtils.PreviewContentKind.MARKDOWN ||
+            previewKind == FilePreviewUtils.PreviewContentKind.TEXT
+    val isVoiceReadingActive = voiceReadingState.phase != VoiceReadingPhase.IDLE
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
@@ -87,21 +99,53 @@ internal fun FilePreviewPane(
                         Icon(Icons.Default.Share, contentDescription = "Share")
                     }
                 }
+                if (isTextContent) {
+                    IconButton(
+                        onClick = {
+                            if (isVoiceReadingActive) {
+                                onStopVoiceReading()
+                            } else {
+                                onStartVoiceReading()
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.VolumeUp,
+                            contentDescription = if (isVoiceReadingActive) "停止朗读" else "语音朗读",
+                            tint = if (isVoiceReadingActive) MaterialTheme.colorScheme.primary
+                                   else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
         )
 
         HorizontalDivider()
 
-        when {
-            imagePayload != null -> ImageViewer(bitmap = imagePayload.bitmap)
-            previewKind == FilePreviewUtils.PreviewContentKind.MARKDOWN -> PreviewMarkdown(
-                content = content,
-                filePath = path,
-                repository = repository,
-                sessionDirectory = sessionDirectory
-            )
-            previewKind == FilePreviewUtils.PreviewContentKind.BINARY -> PreviewBinaryFallback()
-            else -> PreviewPlainText(content = content)
+        Box(modifier = Modifier.weight(1f)) {
+            when {
+                imagePayload != null -> ImageViewer(bitmap = imagePayload.bitmap)
+                previewKind == FilePreviewUtils.PreviewContentKind.MARKDOWN -> PreviewMarkdown(
+                    content = content,
+                    filePath = path,
+                    repository = repository,
+                    sessionDirectory = sessionDirectory
+                )
+                previewKind == FilePreviewUtils.PreviewContentKind.BINARY -> PreviewBinaryFallback()
+                else -> PreviewPlainText(content = content)
+            }
+
+            if (isVoiceReadingActive) {
+                VoiceReadingControls(
+                    state = voiceReadingState,
+                    onPlay = onStartVoiceReading,
+                    onPause = onPauseVoiceReading,
+                    onResume = onResumeVoiceReading,
+                    onStop = onStopVoiceReading,
+                    onDismissError = onDismissVoiceError,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
+            }
         }
     }
 }

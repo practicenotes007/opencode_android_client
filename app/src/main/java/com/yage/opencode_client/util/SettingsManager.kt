@@ -142,6 +142,30 @@ class SettingsManager @Inject constructor(
         encryptedPrefs.edit().putString(KEY_SESSION_AGENTS, Json.encodeToString(map)).apply()
     }
 
+    fun getVoiceReadingPosition(filePath: String): Int {
+        val json = encryptedPrefs.getString(KEY_VOICE_READING_POSITIONS, null) ?: return 0
+        return try {
+            Json.decodeFromString<Map<String, Int>>(json)[filePath] ?: 0
+        } catch (e: Exception) {
+            0
+        }
+    }
+
+    fun setVoiceReadingPosition(filePath: String, paragraphIndex: Int) {
+        val json = encryptedPrefs.getString(KEY_VOICE_READING_POSITIONS, null)
+        val map: MutableMap<String, Int> = try {
+            json?.let { Json.decodeFromString<Map<String, Int>>(it).toMutableMap() } ?: mutableMapOf()
+        } catch (e: Exception) {
+            mutableMapOf()
+        }
+        if (paragraphIndex <= 0) {
+            map.remove(filePath)
+        } else {
+            map[filePath] = paragraphIndex
+        }
+        encryptedPrefs.edit().putString(KEY_VOICE_READING_POSITIONS, Json.encodeToString(map)).apply()
+    }
+
     companion object {
         const val DEFAULT_SERVER = "http://localhost:4096"
         const val DEFAULT_AI_BUILDER_BASE_URL = "https://space.ai-builders.com/backend"
@@ -163,6 +187,7 @@ class SettingsManager @Inject constructor(
         private const val KEY_SESSION_DRAFTS = "session_drafts"
         private const val KEY_SESSION_MODELS = "session_models"
         private const val KEY_SESSION_AGENTS = "session_agents"
+        private const val KEY_VOICE_READING_POSITIONS = "voice_reading_positions"
     }
 }
 

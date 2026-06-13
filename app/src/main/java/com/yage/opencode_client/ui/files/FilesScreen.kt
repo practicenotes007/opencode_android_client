@@ -16,6 +16,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,12 +28,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun FilesScreen(
     viewModel: FilesViewModel = hiltViewModel(),
+    voiceReadingViewModel: VoiceReadingViewModel = hiltViewModel(),
     pathToShow: String? = null,
     sessionDirectory: String? = null,
     onCloseFile: () -> Unit = {},
     onFileClick: (String) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val voiceState by voiceReadingViewModel.state.collectAsState()
 
     LaunchedEffect(pathToShow, sessionDirectory) {
         viewModel.syncPathToShow(pathToShow, sessionDirectory)
@@ -78,9 +81,20 @@ fun FilesScreen(
                     repository = viewModel.repository,
                     sessionDirectory = sessionDirectory,
                     onClose = {
+                        voiceReadingViewModel.stopReading()
                         viewModel.closePreview()
                         onCloseFile()
-                    }
+                    },
+                    voiceReadingState = voiceState,
+                    onStartVoiceReading = {
+                        val content = state.selectedFileContent?.content.orEmpty()
+                        val path = state.selectedFilePath ?: return@FilePreviewPane
+                        voiceReadingViewModel.startReading(path, content)
+                    },
+                    onPauseVoiceReading = { voiceReadingViewModel.pauseReading() },
+                    onResumeVoiceReading = { voiceReadingViewModel.resumeReading() },
+                    onStopVoiceReading = { voiceReadingViewModel.stopReading() },
+                    onDismissVoiceError = { voiceReadingViewModel.clearError() }
                 )
             }
 
