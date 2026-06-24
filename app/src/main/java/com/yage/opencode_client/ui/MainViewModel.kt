@@ -65,8 +65,9 @@ data class AppState(
     data class ModelOption(val displayName: String, val providerId: String, val modelId: String) {
         val shortName: String
             get() = when {
-                displayName == "DeepSeek V4 Flash" -> "DS-Flash"
-                displayName == "DeepSeek V4 Pro" -> "DS-Pro"
+                displayName.startsWith("DSv4Flash") -> "DS-Flash"
+                displayName.startsWith("DSv4Pro") -> "DS-Pro"
+                displayName == "GLM-5.1(火山)" -> "GLM"
                 "Haiku" in displayName -> "Haiku"
                 "Gemini" in displayName -> "Gemini"
                 "GPT" in displayName -> "GPT"
