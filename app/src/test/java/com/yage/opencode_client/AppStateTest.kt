@@ -159,10 +159,10 @@ class AppStateTest {
 
         assertEquals(ModelPresets.list.size, models.size)
         assertEquals(ModelPresets.list, models)
-        assertEquals("GLM-5.1", models[0].displayName)
+        assertEquals("GLM-5.1(火山)", models[0].displayName)
         assertEquals("volcengine-plan", models[0].providerId)
         assertEquals("glm-5.1", models[0].modelId)
-        assertEquals("DeepSeek V4 Flash", models[1].displayName)
+        assertEquals("DSv4Flash(火山)", models[1].displayName)
         assertEquals("volcengine-plan", models[1].providerId)
         assertEquals("deepseek-v4-flash", models[1].modelId)
     }
