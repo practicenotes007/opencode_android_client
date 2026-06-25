@@ -10,6 +10,7 @@ import com.yage.opencode_client.util.SettingsManager
 import com.yage.opencode_client.util.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -469,20 +470,31 @@ class MainViewModel @Inject constructor(
         val rawText = _state.value.inputText.trim()
         if (rawText.isEmpty()) return
 
-        val agent = _state.value.selectedAgentName
-        val model = buildSelectedModel(_state.value)
+        viewModelScope.launch {
+            // If session is stuck in retry (e.g., after a failed volcengine-plan request),
+            // abort to reset server state before sending the new message.
+            if (_state.value.currentSessionStatus?.isRetry == true) {
+                repository.abortSession(sessionId)
+                _state.update {
+                    it.copy(sessionStatuses = it.sessionStatuses + (sessionId to SessionStatus(type = "idle")))
+                }
+                delay(300)
+            }
 
-        launchSendMessage(
-            scope = viewModelScope,
-            repository = repository,
-            state = _state,
-            sessionId = sessionId,
-            text = rawText,
-            agent = agent,
-            model = model,
-            onRefreshMessages = ::loadMessagesWithRetry,
-            onSuccess = { settingsManager.setDraftText(sessionId, "") }
-        )
+            val agent = _state.value.selectedAgentName
+            val model = buildSelectedModel(_state.value)
+            launchSendMessage(
+                scope = this,
+                repository = repository,
+                state = _state,
+                sessionId = sessionId,
+                text = rawText,
+                agent = agent,
+                model = model,
+                onRefreshMessages = ::loadMessagesWithRetry,
+                onSuccess = { settingsManager.setDraftText(sessionId, "") }
+            )
+        }
     }
 
     fun abortSession() {
