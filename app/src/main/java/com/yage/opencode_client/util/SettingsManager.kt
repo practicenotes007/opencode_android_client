@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.yage.opencode_client.data.audio.TtsProviderType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -166,6 +167,36 @@ class SettingsManager @Inject constructor(
         encryptedPrefs.edit().putString(KEY_VOICE_READING_POSITIONS, Json.encodeToString(map)).apply()
     }
 
+    // ── TTS Provider settings ──────────────────────────────────────
+
+    var ttsProvider: TtsProviderType
+        get() {
+            val raw = encryptedPrefs.getString(KEY_TTS_PROVIDER, TtsProviderType.SYSTEM.name)
+                ?: TtsProviderType.SYSTEM.name
+            return try {
+                TtsProviderType.valueOf(raw)
+            } catch (e: IllegalArgumentException) {
+                TtsProviderType.SYSTEM
+            }
+        }
+        set(value) = encryptedPrefs.edit().putString(KEY_TTS_PROVIDER, value.name).apply()
+
+    var bailianApiKey: String
+        get() = encryptedPrefs.getString(KEY_BAILIAN_API_KEY, "") ?: ""
+        set(value) = encryptedPrefs.edit().putString(KEY_BAILIAN_API_KEY, value).apply()
+
+    var bailianAppKey: String
+        get() = encryptedPrefs.getString(KEY_BAILIAN_APP_KEY, "") ?: ""
+        set(value) = encryptedPrefs.edit().putString(KEY_BAILIAN_APP_KEY, value).apply()
+
+    var volcanoArkAppId: String
+        get() = encryptedPrefs.getString(KEY_VOLCANO_ARK_APP_ID, "") ?: ""
+        set(value) = encryptedPrefs.edit().putString(KEY_VOLCANO_ARK_APP_ID, value).apply()
+
+    var volcanoArkAccessToken: String
+        get() = encryptedPrefs.getString(KEY_VOLCANO_ARK_ACCESS_TOKEN, "") ?: ""
+        set(value) = encryptedPrefs.edit().putString(KEY_VOLCANO_ARK_ACCESS_TOKEN, value).apply()
+
     companion object {
         const val DEFAULT_SERVER = "http://localhost:4096"
         const val DEFAULT_AI_BUILDER_BASE_URL = "https://space.ai-builders.com/backend"
@@ -188,6 +219,11 @@ class SettingsManager @Inject constructor(
         private const val KEY_SESSION_MODELS = "session_models"
         private const val KEY_SESSION_AGENTS = "session_agents"
         private const val KEY_VOICE_READING_POSITIONS = "voice_reading_positions"
+        private const val KEY_TTS_PROVIDER = "tts_provider"
+        private const val KEY_BAILIAN_API_KEY = "bailian_api_key"
+        private const val KEY_BAILIAN_APP_KEY = "bailian_app_key"
+        private const val KEY_VOLCANO_ARK_APP_ID = "volcano_ark_app_id"
+        private const val KEY_VOLCANO_ARK_ACCESS_TOKEN = "volcano_ark_access_token"
     }
 }
 

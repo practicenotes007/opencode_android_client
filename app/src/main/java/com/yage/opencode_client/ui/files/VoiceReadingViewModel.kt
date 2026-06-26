@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yage.opencode_client.data.audio.DocumentSummarizer
-import com.yage.opencode_client.data.audio.TextToSpeechManager
 import com.yage.opencode_client.data.audio.TtsEvent
+import com.yage.opencode_client.data.audio.TtsManager
 import com.yage.opencode_client.util.SettingsManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +39,7 @@ data class VoiceReadingState(
 
 @HiltViewModel
 class VoiceReadingViewModel @Inject constructor(
-    private val ttsManager: TextToSpeechManager,
+    private val ttsManager: TtsManager,
     private val summarizer: DocumentSummarizer,
     private val settingsManager: SettingsManager
 ) : ViewModel() {
@@ -63,7 +63,7 @@ class VoiceReadingViewModel @Inject constructor(
         }
     }
 
-    private fun handleTtsEvent(event: TtsEvent) {
+    private suspend fun handleTtsEvent(event: TtsEvent) {
         when (event) {
             is TtsEvent.EngineReady -> {
                 _state.update { it.copy(isTtsReady = true) }
@@ -90,7 +90,7 @@ class VoiceReadingViewModel @Inject constructor(
         }
     }
 
-    private fun handleUtteranceCompleted(utteranceId: String) {
+    private suspend fun handleUtteranceCompleted(utteranceId: String) {
         val currentState = _state.value
         if (isStopping) return
 
@@ -130,13 +130,13 @@ class VoiceReadingViewModel @Inject constructor(
         }
     }
 
-    private fun speakCurrentParagraph(index: Int) {
+    private suspend fun speakCurrentParagraph(index: Int) {
         val paragraphs = _state.value.paragraphs
         if (index >= paragraphs.size) return
 
         val text = paragraphs[index]
         val utteranceId = "${UTTERANCE_PARAGRAPH_PREFIX}$index"
-        ttsManager.speak(text, utteranceId)
+        ttsManager.synthesize(text, utteranceId)
     }
 
     fun startReading(filePath: String, documentContent: String) {
@@ -206,7 +206,7 @@ class VoiceReadingViewModel @Inject constructor(
                 } else {
                     "以下是本文档的内容概要：$summary 现在开始朗读正文。"
                 }
-                ttsManager.speak(introText, UTTERANCE_SUMMARY)
+                ttsManager.synthesize(introText, UTTERANCE_SUMMARY)
             }.onFailure { error ->
                 Log.e(TAG, "Summarization failed: ${error.message}")
                 // Fallback: skip summary, read directly
@@ -238,7 +238,9 @@ class VoiceReadingViewModel @Inject constructor(
         val currentState = _state.value
         if (currentState.currentParagraphIndex < currentState.paragraphs.size) {
             _state.update { it.copy(phase = VoiceReadingPhase.READING_CONTENT) }
-            speakCurrentParagraph(currentState.currentParagraphIndex)
+            viewModelScope.launch {
+                speakCurrentParagraph(currentState.currentParagraphIndex)
+            }
         }
     }
 
