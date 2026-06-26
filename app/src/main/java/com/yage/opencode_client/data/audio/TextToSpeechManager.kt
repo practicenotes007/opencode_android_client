@@ -12,24 +12,24 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
-sealed class TtsEvent {
-    data class UtteranceStarted(val utteranceId: String) : TtsEvent()
-    data class UtteranceCompleted(val utteranceId: String) : TtsEvent()
-    data class UtteranceError(val utteranceId: String, val errorCode: Int) : TtsEvent()
-    data object EngineReady : TtsEvent()
-    data class EngineError(val message: String) : TtsEvent()
-}
-
+/**
+ * Android system TTS provider.
+ *
+ * Wraps [android.speech.tts.TextToSpeech] and implements [TtsProvider].
+ * Plays audio directly through the Android audio HAL — no separate
+ * audio download step needed.
+ */
 @Singleton
 class TextToSpeechManager @Inject constructor(
     @ApplicationContext private val context: Context
-) {
+) : TtsProvider {
+
     private var tts: TextToSpeech? = null
     private var isInitialized = false
     private val eventChannel = Channel<TtsEvent>(Channel.BUFFERED)
-    val events: Flow<TtsEvent> = eventChannel.receiveAsFlow()
+    override val events: Flow<TtsEvent> = eventChannel.receiveAsFlow()
 
-    fun initialize(): Boolean {
+    override fun initialize(): Boolean {
         if (isInitialized) return true
 
         tts = TextToSpeech(context) { status ->
@@ -91,6 +91,16 @@ class TextToSpeechManager @Inject constructor(
         return isInitialized
     }
 
+    /**
+     * System TTS plays directly; no separate audio download is needed.
+     * Returns [SynthesisResult.HandledByProvider] — the caller just waits for
+     * events on [events].
+     */
+    override suspend fun synthesize(text: String, utteranceId: String): SynthesisResult {
+        speak(text, utteranceId)
+        return SynthesisResult.HandledByProvider
+    }
+
     fun speak(text: String, utteranceId: String, queueMode: Int = TextToSpeech.QUEUE_ADD) {
         val engine = tts ?: run {
             Log.e(TAG, "TTS not initialized")
@@ -114,12 +124,12 @@ class TextToSpeechManager @Inject constructor(
         }
     }
 
-    fun stop() {
+    override fun stop() {
         tts?.stop()
         Log.d(TAG, "TTS stopped")
     }
 
-    fun shutdown() {
+    override fun shutdown() {
         tts?.stop()
         tts?.shutdown()
         tts = null
@@ -127,7 +137,7 @@ class TextToSpeechManager @Inject constructor(
         Log.d(TAG, "TTS shutdown")
     }
 
-    val isSpeaking: Boolean
+    override val isSpeaking: Boolean
         get() = tts?.isSpeaking == true
 
     companion object {
