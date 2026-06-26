@@ -19,12 +19,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yage.opencode_client.data.audio.TtsProviderType
 import com.yage.opencode_client.ui.MainViewModel
+import com.yage.opencode_client.util.SettingsManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     viewModel: MainViewModel,
+    settingsManager: SettingsManager,
     onBack: (() -> Unit)? = null
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -35,6 +38,11 @@ fun SettingsScreen(
     var showPassword by remember { mutableStateOf(false) }
     var isTesting by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<TestResult?>(null) }
+    var ttsProvider by remember { mutableStateOf(settingsManager.ttsProvider) }
+    var bailianApiKey by remember { mutableStateOf(settingsManager.bailianApiKey) }
+    var bailianAppKey by remember { mutableStateOf(settingsManager.bailianAppKey) }
+    var volcanoArkAppId by remember { mutableStateOf(settingsManager.volcanoArkAppId) }
+    var volcanoArkAccessToken by remember { mutableStateOf(settingsManager.volcanoArkAccessToken) }
 
     LaunchedEffect(state.isConnecting) {
         if (!state.isConnecting && isTesting) {
@@ -114,6 +122,36 @@ fun SettingsScreen(
             AppearanceSection(
                 themeMode = state.themeMode,
                 onThemeSelected = viewModel::setThemeMode
+            )
+
+            SettingsSectionDivider()
+
+            TtsProviderSection(
+                currentProvider = ttsProvider,
+                bailianApiKey = bailianApiKey,
+                bailianAppKey = bailianAppKey,
+                volcanoArkAppId = volcanoArkAppId,
+                volcanoArkAccessToken = volcanoArkAccessToken,
+                onProviderSelected = {
+                    ttsProvider = it
+                    settingsManager.ttsProvider = it
+                },
+                onBailianApiKeyChange = {
+                    bailianApiKey = it
+                    settingsManager.bailianApiKey = it
+                },
+                onBailianAppKeyChange = {
+                    bailianAppKey = it
+                    settingsManager.bailianAppKey = it
+                },
+                onVolcanoArkAppIdChange = {
+                    volcanoArkAppId = it
+                    settingsManager.volcanoArkAppId = it
+                },
+                onVolcanoArkAccessTokenChange = {
+                    volcanoArkAccessToken = it
+                    settingsManager.volcanoArkAccessToken = it
+                }
             )
 
             SettingsSectionDivider()

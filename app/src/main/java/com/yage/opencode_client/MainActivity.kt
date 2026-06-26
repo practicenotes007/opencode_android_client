@@ -42,6 +42,7 @@ import com.yage.opencode_client.ui.session.SessionList
 import com.yage.opencode_client.ui.settings.SettingsScreen
 import com.yage.opencode_client.ui.theme.OpenCodeTheme
 import com.yage.opencode_client.ui.theme.compactTypography
+import com.yage.opencode_client.util.SettingsManager
 import com.yage.opencode_client.util.ThemeMode
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -79,6 +80,9 @@ val screens = listOf(Screen.Chat, Screen.Files, Screen.Settings)
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject lateinit var settingsManager: SettingsManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -101,9 +105,9 @@ class MainActivity : ComponentActivity() {
 
             OpenCodeTheme(darkTheme = darkTheme) {
                 if (isTablet) {
-                    TabletLayout(viewModel = viewModel)
+                    TabletLayout(viewModel = viewModel, settingsManager = settingsManager)
                 } else {
-                    PhoneLayout(viewModel = viewModel)
+                    PhoneLayout(viewModel = viewModel, settingsManager = settingsManager)
                 }
             }
         }
@@ -111,7 +115,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun PhoneLayout(viewModel: MainViewModel) {
+private fun PhoneLayout(viewModel: MainViewModel, settingsManager: SettingsManager) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -184,7 +188,7 @@ private fun PhoneLayout(viewModel: MainViewModel) {
                 )
             }
             composable(Screen.Settings.route) {
-                SettingsScreen(viewModel = viewModel)
+                SettingsScreen(viewModel = viewModel, settingsManager = settingsManager)
             }
         }
     }
@@ -192,7 +196,7 @@ private fun PhoneLayout(viewModel: MainViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TabletLayout(viewModel: MainViewModel) {
+private fun TabletLayout(viewModel: MainViewModel, settingsManager: SettingsManager) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val onOpenSettings: () -> Unit = { selectedTab = 1 }
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -211,6 +215,7 @@ private fun TabletLayout(viewModel: MainViewModel) {
             if (selectedTab == 1) {
                 SettingsScreen(
                     viewModel = viewModel,
+                    settingsManager = settingsManager,
                     onBack = { selectedTab = 0 }
                 )
             } else {

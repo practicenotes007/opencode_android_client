@@ -31,11 +31,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.yage.opencode_client.data.audio.TtsProviderType
 import com.yage.opencode_client.ui.AppState
 import com.yage.opencode_client.util.ThemeMode
 
@@ -261,6 +266,118 @@ internal fun SettingsSectionDivider() {
     Spacer(modifier = Modifier.height(32.dp))
     HorizontalDivider()
     Spacer(modifier = Modifier.height(32.dp))
+}
+
+@Composable
+internal fun TtsProviderSection(
+    currentProvider: TtsProviderType,
+    bailianApiKey: String,
+    bailianAppKey: String,
+    volcanoArkAppId: String,
+    volcanoArkAccessToken: String,
+    onProviderSelected: (TtsProviderType) -> Unit,
+    onBailianApiKeyChange: (String) -> Unit,
+    onBailianAppKeyChange: (String) -> Unit,
+    onVolcanoArkAppIdChange: (String) -> Unit,
+    onVolcanoArkAccessTokenChange: (String) -> Unit
+) {
+    var showApiKey by remember { mutableStateOf(false) }
+
+    SectionHeader(title = "语音朗读 TTS")
+
+    TtsProviderType.entries.forEach { provider ->
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RadioButton(
+                selected = currentProvider == provider,
+                onClick = { onProviderSelected(provider) }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                provider.displayName,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+
+    Spacer(modifier = Modifier.height(4.dp))
+    Text(
+        "云 TTS 提供更自然的中文语音。配置后即可切换使用。",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.outline
+    )
+
+    // Bailian API key fields
+    if (currentProvider == TtsProviderType.BAILIAN) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = bailianApiKey,
+            onValueChange = onBailianApiKeyChange,
+            label = { Text("百炼 API Key") },
+            placeholder = { Text("sk-...") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            visualTransformation = if (showApiKey) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { showApiKey = !showApiKey }) {
+                    Icon(
+                        if (showApiKey) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        contentDescription = if (showApiKey) "隐藏" else "显示"
+                    )
+                }
+            }
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = bailianAppKey,
+            onValueChange = onBailianAppKeyChange,
+            label = { Text("百炼 App Key") },
+            placeholder = { Text("阿里云语音服务 App Key") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+    }
+
+    // Volcano Ark API key fields
+    if (currentProvider == TtsProviderType.VOLCANO_ARK) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = volcanoArkAppId,
+            onValueChange = onVolcanoArkAppIdChange,
+            label = { Text("火山 App ID") },
+            placeholder = { Text("火山引擎应用 ID") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = volcanoArkAccessToken,
+            onValueChange = onVolcanoArkAccessTokenChange,
+            label = { Text("火山 Access Token") },
+            placeholder = { Text("Bearer token") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            visualTransformation = if (showApiKey) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { showApiKey = !showApiKey }) {
+                    Icon(
+                        if (showApiKey) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        contentDescription = if (showApiKey) "隐藏" else "显示"
+                    )
+                }
+            }
+        )
+    }
 }
 
 internal data class TestResult(
